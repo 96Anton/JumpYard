@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dynamic Price Widget</title>
+<link rel="stylesheet" href="https://use.typekit.net/dcy5ljq.css">
+
+
+  <style>
+    :root {
+      --jy-red: #fa0000;
+      --jy-dark: #000000;
+      --jy-bg: #f5f5f7;
+      --jy-text: #000000;
+      --jy-muted: #424242;
+      --jy-border: #e0e0e0;
+      --radius-lg: 3px;
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "acumin-variable",sans-serif;
+      font-variation-settings: 'wght' 400, 'wdth' 100, 'slnt' 0;
+      margin: 0;
+      padding: 32px;
+      background: #ffffff;
+      color: var(--jy-text);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: "acumin-variable",sans-serif;
+      font-variation-settings: 'wght' 900, 'wdth' 90, 'slnt' -12;
+      text-transform: uppercase;
+    }
+
+    .price-widget {
+      max-width: 960px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #111111 0%, #1d1d1d 45%, #2a2a2a 100%);
+      border-radius: 3px;
+      padding: 24px;
+      color: #ffffff;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle graphic overlay */
+    .price-widget::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background-image:
+        radial-gradient(circle at 0 0, rgba(255,255,255,0.08), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(255,255,255,0.04), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .price-widget-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .price-widget-header {
+      margin-bottom: 24px;
+    }
+
+    .price-widget-heading {
+      font-size: 2.6rem;
+      margin: 0 0 8px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .price-widget-text {
+      margin: 0;
+      color: #f3f3f3;
+      max-width: 620px;
+      line-height: 1.2;
+      font-size: 0.95rem;
+    }
+
+    /* Tabs */
+
+    .product-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .product-tab-button {
+      border: none;
+      outline: none;
+      padding: 8px 16px;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: rgba(255,255,255,0.12);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+    }
+
+    .product-tab-button span.dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+    }
+
+    .product-tab-button.is-active {
+      background: #ffffff;
+      color: var(--jy-dark);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      transform: translateY(-1px);
+    }
+
+    .product-tab-button.is-active span.dot {
+      background: var(--jy-red);
+    }
+
+    /* Product card */
+
+    .product-card {
+      background: #ffffff;
+      color: var(--jy-text);
+      border-radius: var(--radius-lg);
+      padding: 20px 20px 16px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+      display: none;
+    }
+
+    .product-card.is-active {
+      display: block;
+    }
+
+    .product-card-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .product-card-title {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .product-card-subtitle {
+      margin: 4px 0 0;
+      font-size: 16px;
+      color: var(--jy-muted);
+      font-weight: 400;
+    }
+
+    .product-card-tag {
+      align-self: flex-start;
+      background: rgba(225, 6, 0, 0.08);
+      border-radius: 3px;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: var(--jy-red);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Scroll wrapper for table on larger screens */
+
+    .price-grid-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .price-grid {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 520px;
+      font-size: 0.9rem;
+    }
+
+    .price-grid th,
+    .price-grid td {
+      border: 1px solid var(--jy-border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: middle;
+      background: #ffffff;
+    }
+
+    .price-grid th {
+      background: #f6f6f8;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--jy-muted);
+    }
+
+    .price-grid th:first-child {
+      border-top-left-radius: 3px;
+    }
+
+    .price-grid th:last-child {
+      border-top-right-radius: 3px;
+    }
+
+    .price-grid tr:last-child td:first-child {
+      border-bottom-left-radius: 3px;
+    }
+
+    .price-grid tr:last-child td:last-child {
+      border-bottom-right-radius: 3px;
+    }
+
+    .price-grid .col-day {
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .price-grid .price-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .price-amount {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--jy-red);
+    }
+
+    .price-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--jy-muted);
+    }
+
+    /* Popularity chips */
+
+    .popularity-chip {
+      border-radius: 3px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border: 1px solid transparent;
+    }
+
+    .popularity-1 {
+      background: #e4f7e7;
+      border-color: #b4dfbb;
+      color: #2e7d32;
+    }
+
+    .popularity-2 {
+      background: #fff7e3;
+      border-color: #ffe0a3;
+      color: #b26a00;
+    }
+
+    .popularity-3 {
+      background: #ffe6e5;
+      border-color: #ffb1ae;
+      color: #b71c1c;
+    }
+
+    /* Popularity dots 1–3 */
+
+    .popularity-dots {
+      display: inline-flex;
+      gap: 3px;
+    }
+
+    .popularity-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d0d0d0;
+    }
+
+    .dots-1 span:nth-child(-n+1),
+    .dots-2 span:nth-child(-n+2),
+    .dots-3 span:nth-child(-n+3) {
+      background: var(--jy-red);
+    }
+
+    /* Footer text under card */
+
+    .product-card-footer {
+      margin-top: 12px;
+      font-size: 16px;
+      color: var(--jy-muted);
+      line-height: 1.4;
+    }
+
+    /* Responsive tweaks and mobile no-scroll layout */
+
+    @media (max-width: 720px) {
+      body {
+        padding: 16px;
+      }
+
+      .price-widget {
+        padding: 18px;
+        border-radius: 3px;
+      }
+
+      .price-widget-heading {
+        font-size: 1.3rem;
+      }
+
+      .product-card {
+        padding: 16px;
+      }
+
+      .product-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .product-card-tag {
+        margin-top: 8px;
+      }
+
+      /* === MOBILE: no horizontal scroll, stacked layout === */
+
+      /* stop forcing horizontal scroll */
+      .price-grid-wrapper {
+        overflow-x: visible;
+        padding-bottom: 0;
+      }
+
+      .price-grid {
+        min-width: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+
+      /* hide table header on mobile */
+      .price-grid thead {
+        display: none;
+      }
+
+      /* each row becomes a mini-card (per weekday) */
+      .price-grid tbody tr {
+        display: block;
+        margin-bottom: 12px;
+        border-radius: 3px;
+        border: 1px solid var(--jy-border);
+        overflow: hidden;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      }
+
+      .price-grid td {
+        display: block;
+        border: none;
+        border-bottom: 1px solid var(--jy-border);
+        padding: 10px 14px;
+      }
+
+      .price-grid td:last-child {
+        border-bottom: none;
+      }
+
+      /* weekday at the top of the card */
+      .price-grid .col-day {
+        font-size: 16px;
+        font-weight: 600;
+        background: #000;
+        color: var(--jy-bg);
+      }
+
+      /* add labels above each price cell using data-label (hours) */
+      .price-grid td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0;
+        color: #000;
+        margin-bottom: 2px;
+      }
+
+      /* tighten price layout a bit on mobile */
+      .price-amount {
+        font-size: 16px;
+      }
+
+      .price-meta {
+        font-size: 12px;
+      }
+    }
+
+    p {
+      line-height: 1.2;
+    }
+  </style>
+</head>
+<body>
+
+<div class="price-widget">
+  <div class="price-widget-inner">
+    <header class="price-widget-header">
+      <h2 class="price-widget-heading">Onlinepriser - Inträde</h2>
+      <p class="price-widget-text">
+       Priserna varierar beroende på dag och tid. Lugnare tider är perfekta för mindre barn medan de mest populära tiderna har extra mycket energi i parken.
+      </p>
+    </header>
+
+    <!-- Product tabs -->
+    <nav class="product-tabs" aria-label="Välj aktivitet">
+      <button class="product-tab-button is-active" data-target="#product-hopptid">
+        <span class="dot"></span>
+        Hopptid
+      </button>
+      <button class="product-tab-button" data-target="#product-skyrider">
+        <span class="dot"></span>
+        Familjebiljett
+      </button>
+    </nav>
+
+    <!-- Product 1: Hopptid -->
+    <section class="product-card is-active" id="product-hopptid" aria-label="Priser Hopptid">
+      <div class="product-card-header">
+        <div>
+          <h3 class="product-card-title">2 timmars Hopptid</h3>
+          <p class="product-card-subtitle">
+            Trampolinstrumpor med halkskydd krävs. Ta med egna eller köp hos oss!
+          </p>
+        </div>
+        <div class="product-card-tag">entré</div>
+      </div>
+
+      <div class="price-grid-wrapper">
+        <table class="price-grid">
+          <thead>
+            <tr>
+              <th>Dag</th>
+              <th>10:00–11:00</th>
+              <th>11:00–12:00</th>
+              <th>13:00–14:00</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="col-day">Vardagar</td>
+              <td data-label="10.00–11.00">
+                <div class="price-cell">
+                  <span class="price-amount">159 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="11.00–12.00">
+                <div class="price-cell">
+                  <span class="price-amount">169 kr</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-2">Medel</span>
+                    <span class="popularity-dots dots-2">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="13.00–14.00">
+                <div class="price-cell">
+                  <span class="price-amount">179 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-3">Populär</span>
+                    <span class="popularity-dots dots-3">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="col-day">Helger</td>
+              <td data-label="10.00–11.00">
+                <div class="price-cell">
+                  <span class="price-amount">179 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-2">Medel</span>
+                    <span class="popularity-dots dots-2">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="11.00–12.00">
+                <div class="price-cell">
+                  <span class="price-amount">189 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-3">Populär</span>
+                    <span class="popularity-dots dots-3">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="13.00–14.00">
+                <div class="price-cell">
+                  <span class="price-amount">199 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-3">Populär</span>
+                    <span class="popularity-dots dots-3">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <p class="product-card-footer">
+        2 timmars hopptid är vår standard entrébiljett.
+      </p>
+    </section>
+
+    <!-- Product 2: Familjebiljett -->
+    <section class="product-card" id="product-skyrider" aria-label="Priser Familjebiljett">
+      <div class="product-card-header">
+        <div>
+          <h3 class="product-card-title">Familjebiljett 2 timmar</h3>
+          <p class="product-card-subtitle">
+            4 personer till priset av 3, varav minst 1 över 18 år. Kul för hela familjen!
+          </p>
+        </div>
+        <div class="product-card-tag">Paket</div>
+      </div>
+
+      <div class="price-grid-wrapper">
+        <table class="price-grid">
+          <thead>
+            <tr>
+              <th>Dag</th>
+              <th>Alla tider</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="col-day">Vardagar</td>
+              <td data-label="Alla tider">
+                <div class="price-cell">
+                  <span class="price-amount">499 kr</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td class="col-day">Helger</td>
+              <td data-label="Alla tider">
+                <div class="price-cell">
+                  <span class="price-amount">599 kr</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-2">Medel</span>
+                    <span class="popularity-dots dots-2">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="product-card-footer">
+        Familjebiljetten gäller för 4 personer till priset av 3, varav minst 1 över 18 år.
+      </p>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  // Simple tab behavior
+  const tabButtons = document.querySelectorAll('.product-tab-button');
+  const productCards = document.querySelectorAll('.product-card');
+
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const targetSelector = button.getAttribute('data-target');
+      const targetCard = document.querySelector(targetSelector);
+
+      tabButtons.forEach(b => b.classList.remove('is-active'));
+      productCards.forEach(card => card.classList.remove('is-active'));
+
+      button.classList.add('is-active');
+      if (targetCard) targetCard.classList.add('is-active');
+    });
+  });
+</script>
+
+</body>
+</html>
