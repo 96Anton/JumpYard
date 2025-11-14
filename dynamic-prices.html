@@ -102,7 +102,7 @@
       border-radius: 3px;
       font-size: 0.9rem;
       cursor: pointer;
-      background: rgba(255,255,255,0.12);
+      background: var(--jy-muted);
       color: #ffffff;
       display: inline-flex;
       align-items: center;
@@ -206,6 +206,7 @@
       text-align: left;
       vertical-align: middle;
       background: #ffffff;
+
     }
 
     .price-grid th {
@@ -255,13 +256,15 @@
     .price-grid .price-cell {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: nowrap;
     }
 
     .price-amount {
       font-weight: 700;
-      font-size: 18px;
-      color: var(--jy-red);
+      font-size: 0.9rem;
+      color: var(--jy-dark);
     }
 
     .price-meta {
@@ -397,6 +400,13 @@
         padding: 10px 14px;
       }
 
+      .price-grid td[data-label] {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+      }
+
       .price-grid td.col-day {
         display: block;
       }
@@ -432,27 +442,35 @@
       }
 
       .price-grid tbody tr.is-open td:not(.col-day) {
-        display: block;
+        display: flex;
       }
 
       /* add labels above each price cell using data-label (hours) */
       .price-grid td[data-label]::before {
-        content: attr(data-label);
-        display: block;
+        content: attr(data-label) ":";
+        display: inline-block;
         font-size: 16px;
+        font-weight: 700;
+        font-variation-settings: 'wght' 700, 'wdth' 100, 'slnt' 0;
         text-transform: uppercase;
         letter-spacing: 0;
         color: #000;
-        margin-bottom: 2px;
+        flex-shrink: 0;
       }
 
       /* tighten price layout a bit on mobile */
       .price-amount {
         font-size: 16px;
+        font-weight: 600;
       }
 
       .price-meta {
         font-size: 12px;
+      }
+
+      /* Keep row layout on mobile */
+      .price-grid .price-cell {
+        flex-direction: row;
       }
     }
 
@@ -524,9 +542,6 @@
                   <span class="price-amount">209 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
-                    <span class="popularity-dots dots-2">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -535,9 +550,6 @@
                   <span class="price-amount">209 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-3">Populärt</span>
-                    <span class="popularity-dots dots-3">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -546,9 +558,6 @@
                   <span class="price-amount">209 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
-                    <span class="popularity-dots dots-2">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -557,9 +566,6 @@
                   <span class="price-amount">209 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -568,9 +574,6 @@
                   <span class="price-amount">179 kr</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -585,9 +588,6 @@
                   <span class="price-amount">209 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
-                    <span class="popularity-dots dots-2">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -596,9 +596,6 @@
                   <span class="price-amount">209 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-3">Populärt</span>
-                    <span class="popularity-dots dots-3">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -607,9 +604,6 @@
                   <span class="price-amount">209 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
-                    <span class="popularity-dots dots-2">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -618,9 +612,6 @@
                   <span class="price-amount">209 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -629,9 +620,6 @@
                   <span class="price-amount">179 kr</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -645,9 +633,6 @@
                   <span class="price-amount">149 kr</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -656,9 +641,6 @@
                   <span class="price-amount">149 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
-                    <span class="popularity-dots dots-2">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -667,9 +649,6 @@
                   <span class="price-amount">219 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-3">Populärt</span>
-                    <span class="popularity-dots dots-3">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -678,9 +657,6 @@
                   <span class="price-amount">179 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
-                    <span class="popularity-dots dots-2">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -689,9 +665,6 @@
                   <span class="price-amount">149 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -741,9 +714,6 @@
                   <span class="price-amount">629 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
-                    <span class="popularity-dots dots-2">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -752,9 +722,6 @@
                   <span class="price-amount">629 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-3">Populärt</span>
-                    <span class="popularity-dots dots-3">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -763,9 +730,6 @@
                   <span class="price-amount">629 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -774,9 +738,6 @@
                   <span class="price-amount">629 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -785,15 +746,12 @@
                   <span class="price-amount">539 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
 
             </tr>
-
+            
 <!--   Fredagar -->         
             <tr>
               <td class="col-day">Fredagar - 1 timme</td>
@@ -804,9 +762,6 @@
                   <span class="price-amount">629 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
-                    <span class="popularity-dots dots-2">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -815,9 +770,6 @@
                   <span class="price-amount">629 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-3">Populärt</span>
-                    <span class="popularity-dots dots-3">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -826,9 +778,6 @@
                   <span class="price-amount">629 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -837,9 +786,6 @@
                   <span class="price-amount">629 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -848,9 +794,6 @@
                   <span class="price-amount">539 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -864,9 +807,6 @@
                   <span class="price-amount">499 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -875,9 +815,6 @@
                   <span class="price-amount">449 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
-                    <span class="popularity-dots dots-2">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -886,9 +823,6 @@
                   <span class="price-amount">649 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-3">Populärt</span>
-                    <span class="popularity-dots dots-3">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -897,9 +831,6 @@
                   <span class="price-amount">529 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
-                    <span class="popularity-dots dots-2">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
@@ -908,9 +839,6 @@
                   <span class="price-amount">449 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
                   </div>
                 </div>
               </td>
