@@ -2,6 +2,7 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dynamic Price Widget</title>
 <link rel="stylesheet" href="https://use.typekit.net/dcy5ljq.css">
 
@@ -109,11 +110,15 @@
       transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
     }
 
-    .product-tab-button span.dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.5);
+    .product-tab-button span.plus {
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1;
+      color: #fa0000;
+    }
+
+    .product-tab-button span.plus::before {
+      content: '+';
     }
 
     .product-tab-button.is-active {
@@ -123,8 +128,12 @@
       transform: translateY(-1px);
     }
 
-    .product-tab-button.is-active span.dot {
-      background: var(--jy-red);
+    .product-tab-button.is-active span.plus {
+      color: var(--jy-red);
+    }
+
+    .product-tab-button.is-active span.plus::before {
+      content: '−';
     }
 
     /* Product card */
@@ -226,7 +235,21 @@
 
     .price-grid .col-day {
       font-weight: 600;
-      white-space: nowrap;
+      white-space: balance;
+      user-select: none;
+      transition: background 0.2s ease;
+    }
+
+    .price-grid .col-day::after {
+      content: '▼';
+      float: right;
+      font-size: 12px;
+      transition: transform 0.3s ease;
+      display: none;
+    }
+
+    .price-grid .col-day.is-open::after {
+      transform: rotate(180deg);
     }
 
     .price-grid .price-cell {
@@ -254,7 +277,7 @@
     .popularity-chip {
       border-radius: 3px;
       padding: 2px 8px;
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -368,10 +391,18 @@
       }
 
       .price-grid td {
-        display: block;
+        display: none;
         border: none;
         border-bottom: 1px solid var(--jy-border);
         padding: 10px 14px;
+      }
+
+      .price-grid td.col-day {
+        display: block;
+      }
+
+      .price-grid tbody tr.is-open td:not(.col-day) {
+        display: block;
       }
 
       .price-grid td:last-child {
@@ -384,6 +415,24 @@
         font-weight: 600;
         background: #000;
         color: var(--jy-bg);
+        cursor: pointer;
+      }
+
+      .price-grid .col-day:hover {
+        background: #1a1a1a;
+      }
+
+      .price-grid .col-day::after {
+        display: block;
+      }
+
+      /* Hide price cells by default on mobile */
+      .price-grid tbody tr td:not(.col-day) {
+        display: none;
+      }
+
+      .price-grid tbody tr.is-open td:not(.col-day) {
+        display: block;
       }
 
       /* add labels above each price cell using data-label (hours) */
@@ -410,6 +459,10 @@
     p {
       line-height: 1.2;
     }
+
+    strong {
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -425,21 +478,21 @@
 
     <!-- Product tabs -->
     <nav class="product-tabs" aria-label="Välj aktivitet">
-      <button class="product-tab-button is-active" data-target="#product-hopptid">
-        <span class="dot"></span>
+      <button class="product-tab-button" data-target="#product-hopptid">
+        <span class="plus"></span>
         Hopptid
       </button>
       <button class="product-tab-button" data-target="#product-skyrider">
-        <span class="dot"></span>
+        <span class="plus"></span>
         Familjebiljett
       </button>
     </nav>
 
     <!-- Product 1: Hopptid -->
-    <section class="product-card is-active" id="product-hopptid" aria-label="Priser Hopptid">
+    <section class="product-card" id="product-hopptid" aria-label="Priser Hopptid">
       <div class="product-card-header">
         <div>
-          <h3 class="product-card-title">2 timmars Hopptid</h3>
+          <h3 class="product-card-title">Hopptid</h3>
           <p class="product-card-subtitle">
             Trampolinstrumpor med halkskydd krävs. Ta med egna eller köp hos oss!
           </p>
@@ -452,17 +505,56 @@
           <thead>
             <tr>
               <th>Dag</th>
-              <th>10:00–11:00</th>
-              <th>11:00–12:00</th>
-              <th>13:00–14:00</th>
+              <th>09.00</th>
+              <th>10:00–12:00</th>
+              <th>13:00–16:00</th>
+              <th>17:00</th>
+              <th>18:00</th>
+              <th>19:00</th>
             </tr>
           </thead>
           <tbody>
+
+<!--   Vardagar -->         
             <tr>
-              <td class="col-day">Vardagar</td>
-              <td data-label="10.00–11.00">
+              <td class="col-day">Måndag till torsdag - 2 timmar</td>
+              <td data-label="09.00">Stängt</td>
+              <td data-label="10.00–12.00">
                 <div class="price-cell">
-                  <span class="price-amount">159 kr/pers</span>
+                  <span class="price-amount">209 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-2">Medel</span>
+                    <span class="popularity-dots dots-2">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="13.00–16.00">
+                <div class="price-cell">
+                  <span class="price-amount">209 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-3">Populärt</span>
+                    <span class="popularity-dots dots-3">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="17.00">
+                <div class="price-cell">
+                  <span class="price-amount">209 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-2">Medel</span>
+                    <span class="popularity-dots dots-2">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="18.00">
+                <div class="price-cell">
+                  <span class="price-amount">209 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-1">Lugnt</span>
                     <span class="popularity-dots dots-1">
@@ -471,9 +563,26 @@
                   </div>
                 </div>
               </td>
-              <td data-label="11.00–12.00">
+              <td data-label="19.00">
                 <div class="price-cell">
-                  <span class="price-amount">169 kr</span>
+                  <span class="price-amount">179 kr</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+<!--   Fredagar -->         
+            <tr>
+              <td class="col-day">Fredagar - 1 timme</td>
+              <td data-label="09.00">Stängt</td>
+              <td data-label="10.00–12.00">
+                <div class="price-cell">
+                  <span class="price-amount">209 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
                     <span class="popularity-dots dots-2">
@@ -482,22 +591,89 @@
                   </div>
                 </div>
               </td>
-              <td data-label="13.00–14.00">
+              <td data-label="13.00–16.00">
                 <div class="price-cell">
-                  <span class="price-amount">179 kr/pers</span>
+                  <span class="price-amount">209 kr/pers</span>
                   <div class="price-meta">
-                    <span class="popularity-chip popularity-3">Populär</span>
+                    <span class="popularity-chip popularity-3">Populärt</span>
                     <span class="popularity-dots dots-3">
                       <span></span><span></span><span></span>
                     </span>
                   </div>
                 </div>
               </td>
+              <td data-label="17.00">
+                <div class="price-cell">
+                  <span class="price-amount">209 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-2">Medel</span>
+                    <span class="popularity-dots dots-2">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="18.00">
+                <div class="price-cell">
+                  <span class="price-amount">209 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="19.00">
+                <div class="price-cell">
+                  <span class="price-amount">179 kr</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
             </tr>
+
 
             <tr>
               <td class="col-day">Helger</td>
-              <td data-label="10.00–11.00">
+               <td data-label="09.00">
+                <div class="price-cell">
+                  <span class="price-amount">149 kr</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="10.00–12.00">
+                <div class="price-cell">
+                  <span class="price-amount">149 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-2">Medel</span>
+                    <span class="popularity-dots dots-2">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="13.00–16.00">
+                <div class="price-cell">
+                  <span class="price-amount">219 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-3">Populärt</span>
+                    <span class="popularity-dots dots-3">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="17.00">
                 <div class="price-cell">
                   <span class="price-amount">179 kr/pers</span>
                   <div class="price-meta">
@@ -508,46 +684,34 @@
                   </div>
                 </div>
               </td>
-              <td data-label="11.00–12.00">
+              <td data-label="18.00">
                 <div class="price-cell">
-                  <span class="price-amount">189 kr/pers</span>
+                  <span class="price-amount">149 kr/pers</span>
                   <div class="price-meta">
-                    <span class="popularity-chip popularity-3">Populär</span>
-                    <span class="popularity-dots dots-3">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
                       <span></span><span></span><span></span>
                     </span>
                   </div>
                 </div>
               </td>
-              <td data-label="13.00–14.00">
-                <div class="price-cell">
-                  <span class="price-amount">199 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-3">Populär</span>
-                    <span class="popularity-dots dots-3">
-                      <span></span><span></span><span></span>
-                    </span>
-                  </div>
-                </div>
-              </td>
+              <td data-label="19.00">Stängt</td>
             </tr>
-
           </tbody>
         </table>
       </div>
 
       <p class="product-card-footer">
-        2 timmars hopptid är vår standard entrébiljett.
-      </p>
+        Vi har flexibla priser, vilket innebär att du kan få ett bättre pris när vi har det lite lugnare.</br></br>Besök oss när det är mindre folk och få mer för pengarna!</br></br>Vi rekommenderar att du bokar ditt inträde online för att <strong style="font-weight: 600;">spara 20 kr per person</strong> men du är alltid välkommen på drop-in.</p>
     </section>
 
     <!-- Product 2: Familjebiljett -->
     <section class="product-card" id="product-skyrider" aria-label="Priser Familjebiljett">
       <div class="product-card-header">
         <div>
-          <h3 class="product-card-title">Familjebiljett 2 timmar</h3>
+          <h3 class="product-card-title">Familjebiljett</h3>
           <p class="product-card-subtitle">
-            4 personer till priset av 3, varav minst 1 över 18 år. Kul för hela familjen!
+            4 personer till priset av 3, varav minst 1 över 18 år. Kul för hela familjen! </br>Trampolinstrumpor med halkskydd krävs. Ta med egna eller köp hos oss!
           </p>
         </div>
         <div class="product-card-tag">Entré för familj</div>
@@ -558,29 +722,23 @@
           <thead>
             <tr>
               <th>Dag</th>
-              <th>Alla tider</th>
+              <th>09:00</th>
+              <th>10:00–12:00</th>
+              <th>13:00–16:00</th>
+              <th>17:00</th>
+              <th>18:00</th>
+              <th>19:00 (sista timmen)</th>
             </tr>
           </thead>
           <tbody>
+<!--   Vardagar -->         
             <tr>
-              <td class="col-day">Vardagar</td>
-              <td data-label="Alla tider">
+              <td class="col-day">Måndag till torsdag - 2 timmar</td>
+              <td data-label="09.00">Stängt</td>
+
+              <td data-label="10.00–12.00">
                 <div class="price-cell">
-                  <span class="price-amount">499 kr</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                    <span class="popularity-dots dots-1">
-                      <span></span><span></span><span></span>
-                    </span>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td class="col-day">Helger</td>
-              <td data-label="Alla tider">
-                <div class="price-cell">
-                  <span class="price-amount">599 kr</span>
+                  <span class="price-amount">629 kr/pers</span>
                   <div class="price-meta">
                     <span class="popularity-chip popularity-2">Medel</span>
                     <span class="popularity-dots dots-2">
@@ -589,21 +747,189 @@
                   </div>
                 </div>
               </td>
+              <td data-label="13.00–16.00">
+                <div class="price-cell">
+                  <span class="price-amount">629 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-3">Populärt</span>
+                    <span class="popularity-dots dots-3">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="17.00">
+                <div class="price-cell">
+                  <span class="price-amount">629 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+                            <td data-label="18.00">
+                <div class="price-cell">
+                  <span class="price-amount">629 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="19.00 (sista timmen)">
+                <div class="price-cell">
+                  <span class="price-amount">539 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+
+            </tr>
+
+<!--   Fredagar -->         
+            <tr>
+              <td class="col-day">Fredagar - 1 timme</td>
+              <td data-label="09.00">Stängt</td>
+
+              <td data-label="10.00–12.00">
+                <div class="price-cell">
+                  <span class="price-amount">629 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-2">Medel</span>
+                    <span class="popularity-dots dots-2">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="13.00–16.00">
+                <div class="price-cell">
+                  <span class="price-amount">629 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-3">Populärt</span>
+                    <span class="popularity-dots dots-3">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="17.00">
+                <div class="price-cell">
+                  <span class="price-amount">629 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+                            <td data-label="18.00">
+                <div class="price-cell">
+                  <span class="price-amount">629 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="19.00 (sista timmen)">
+                <div class="price-cell">
+                  <span class="price-amount">539 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+
+            </tr>
+
+            <tr>
+              <td class="col-day">Helger - 1 timme</td>
+              <td data-label="09.00">
+                <div class="price-cell">
+                  <span class="price-amount">499 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="10.00–12.00">
+                <div class="price-cell">
+                  <span class="price-amount">449 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-2">Medel</span>
+                    <span class="popularity-dots dots-2">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="13.00-16.00">
+                <div class="price-cell">
+                  <span class="price-amount">649 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-3">Populärt</span>
+                    <span class="popularity-dots dots-3">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+                <td data-label="17.00">
+                <div class="price-cell">
+                  <span class="price-amount">529 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-2">Medel</span>
+                    <span class="popularity-dots dots-2">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="18.00 (sista timmen)">
+                <div class="price-cell">
+                  <span class="price-amount">449 kr/pers</span>
+                  <div class="price-meta">
+                    <span class="popularity-chip popularity-1">Lugnt</span>
+                    <span class="popularity-dots dots-1">
+                      <span></span><span></span><span></span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="19.00">Stängt</td>
+
             </tr>
           </tbody>
         </table>
       </div>
 
       <p class="product-card-footer">
-        Familjebiljetten gäller för 4 personer till priset av 3, varav minst 1 över 18 år.
-      </p>
+        Vi har flexibla priser, vilket innebär att du kan få ett bättre pris när vi har det lite lugnare.</br></br>Besök oss när det är mindre folk och få mer för pengarna!</br></br>Vi rekommenderar att du bokar ditt inträde online för att <strong style="font-weight: 600;">spara 20 kr per person</strong> men du är alltid välkommen på drop-in.</p>
     </section>
 
   </div>
 </div>
 
 <script>
-  // Simple tab behavior
+  // Tab switching behavior
   const tabButtons = document.querySelectorAll('.product-tab-button');
   const productCards = document.querySelectorAll('.product-card');
 
@@ -612,11 +938,51 @@
       const targetSelector = button.getAttribute('data-target');
       const targetCard = document.querySelector(targetSelector);
 
-      tabButtons.forEach(b => b.classList.remove('is-active'));
-      productCards.forEach(card => card.classList.remove('is-active'));
+      // Check if the clicked button is already active
+      const isCurrentlyActive = button.classList.contains('is-active');
 
-      button.classList.add('is-active');
-      if (targetCard) targetCard.classList.add('is-active');
+      if (isCurrentlyActive) {
+        // If active, collapse it
+        button.classList.remove('is-active');
+        if (targetCard) targetCard.classList.remove('is-active');
+      } else {
+        // If not active, close all others and open this one
+        tabButtons.forEach(b => b.classList.remove('is-active'));
+        productCards.forEach(card => card.classList.remove('is-active'));
+
+        button.classList.add('is-active');
+        if (targetCard) targetCard.classList.add('is-active');
+      }
+    });
+  });
+
+  // Day row accordion behavior (mobile only)
+  const dayRows = document.querySelectorAll('.col-day');
+  
+  dayRows.forEach(dayCell => {
+    dayCell.addEventListener('click', (e) => {
+      // Only work as accordion on mobile (720px or less)
+      if (window.innerWidth > 720) {
+        return;
+      }
+      
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const row = dayCell.parentElement;
+      const isOpen = row.classList.contains('is-open');
+      
+      if (isOpen) {
+        // Close this row
+        row.classList.remove('is-open');
+        dayCell.classList.remove('is-open');
+      } else {
+        // Open this row
+        row.classList.add('is-open');
+        dayCell.classList.add('is-open');
+      }
+      
+      return false;
     });
   });
 </script>
