@@ -1,489 +1,518 @@
-<!DOCTYPE html>
-<html lang="sv">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dynamic Price Widget</title>
+<!-- Temporary font loading for preview -->
 <link rel="stylesheet" href="https://use.typekit.net/dcy5ljq.css">
 
 
-  <style>
-    :root {
-      --jy-red: #fa0000;
-      --jy-dark: #000000;
-      --jy-bg: #f5f5f7;
-      --jy-text: #000000;
-      --jy-muted: #424242;
-      --jy-border: #e0e0e0;
-      --radius-lg: 3px;
-      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.12);
-    }
+<style>
+  /* JumpYard Theme Variables */
+  .price-widget {
+    --main-color: #fa0000;
+    --dark-color: #000000;
+    --bg-color: #f5f5f7;
+    --text-color: #000000;
+    --muted-color: #424242;
+    --border-color: #e0e0e0;
+    --border-radius: 3px;
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    --font-family: "acumin-variable", sans-serif;
+    --font-weight-normal: 400;
+    --font-weight-bold: 900;
+    --font-width: 100;
+    --font-width-condensed: 90;
+    --font-slant: 0;
+    --font-slant-italic: -12;
+  }
 
-    * {
-      box-sizing: border-box;
-    }
+  .price-widget * {
+    box-sizing: border-box;
+  }
 
-    body {
-      font-family: "acumin-variable",sans-serif;
-      font-variation-settings: 'wght' 400, 'wdth' 100, 'slnt' 0;
-      margin: 0;
-      padding: 32px;
-      background: #ffffff;
-      color: var(--jy-text);
-    }
+  .price-widget {
+    font-family: var(--font-family);
+    font-variation-settings: 'wght' var(--font-weight-normal), 'wdth' var(--font-width), 'slnt' var(--font-slant);
+    max-width: 960px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #111111 0%, #1d1d1d 45%, #2a2a2a 100%);
+    border-radius: var(--border-radius);
+    padding: 24px;
+    color: #ffffff;
+    box-shadow: var(--box-shadow);
+    position: relative;
+    overflow: hidden;
+  }
 
-    h1, h2, h3, h4, h5, h6 {
-      font-family: "acumin-variable",sans-serif;
-      font-variation-settings: 'wght' 900, 'wdth' 90, 'slnt' -12;
-      text-transform: uppercase;
-    }
+  /* subtle graphic overlay */
+  .price-widget::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background-image:
+      radial-gradient(circle at 0 0, rgba(255,255,255,0.08), transparent 55%),
+      radial-gradient(circle at 100% 100%, rgba(255,255,255,0.04), transparent 55%);
+    opacity: 0.9;
+    pointer-events: none;
+  }
 
+  .price-widget-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .price-widget-header {
+    margin-bottom: 24px;
+  }
+
+  .price-widget h1, 
+  .price-widget h2, 
+  .price-widget h3, 
+  .price-widget h4, 
+  .price-widget h5, 
+  .price-widget h6 {
+    font-family: var(--font-family);
+    font-variation-settings: 'wght' var(--font-weight-bold), 'wdth' var(--font-width-condensed), 'slnt' var(--font-slant-italic);
+    text-transform: uppercase;
+  }
+
+  .price-widget-heading {
+    font-size: 2.6rem;
+    margin: 0 0 8px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .price-widget-text {
+    margin: 0;
+    color: #f3f3f3;
+    max-width: 620px;
+    line-height: 1.2;
+    font-size: 0.95rem;
+  }
+
+  /* Tabs */
+
+  .product-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .product-tab-button {
+    border: none;
+    outline: none;
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    cursor: pointer;
+    background: var(--muted-color);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+  }
+
+  .product-tab-button span.plus {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1;
+    color: #fa0000;
+  }
+
+  .product-tab-button span.plus::before {
+    content: '+';
+  }
+
+  .product-tab-button.is-active {
+    background: #ffffff;
+    color: var(--dark-color);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    transform: translateY(-1px);
+  }
+
+  .product-tab-button.is-active span.plus {
+    color: var(--main-color);
+  }
+
+  .product-tab-button.is-active span.plus::before {
+    content: '−';
+  }
+
+  /* Product card */
+
+  .product-card {
+    background: #ffffff;
+    color: var(--text-color);
+    border-radius: var(--border-radius);
+    padding: 20px 20px 16px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    display: none;
+  }
+
+  .product-card.is-active {
+    display: block;
+  }
+
+  .product-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .product-card-title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .product-card-subtitle {
+    margin: 4px 0 0;
+    font-size: 16px;
+    color: var(--muted-color);
+    font-weight: 400;
+  }
+
+  .product-card-tag {
+    align-self: flex-start;
+    background: rgba(225, 6, 0, 0.08);
+    border-radius: var(--border-radius);
+    padding: 4px 10px;
+    font-size: 12px;
+    color: var(--main-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Scroll wrapper for table on larger screens */
+
+  .price-grid-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+
+  .price-grid {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 520px;
+    font-size: 0.9rem;
+  }
+
+  .price-grid th,
+  .price-grid td {
+    border: 1px solid var(--border-color);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: middle;
+    background: #ffffff;
+  }
+
+  .price-grid th {
+    background: #eaeaed;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    color: var(--muted-color);
+    font-weight: 900;
+  }
+
+  .price-grid th .popularity-chip {
+    display: block;
+    margin-top: 6px;
+    width: fit-content;
+  }
+
+  .price-grid th:first-child {
+    border-top-left-radius: var(--border-radius);
+  }
+
+  .price-grid th:last-child {
+    border-top-right-radius: var(--border-radius);
+  }
+
+  .price-grid tr:last-child td:first-child {
+    border-bottom-left-radius: var(--border-radius);
+  }
+
+  .price-grid tr:last-child td:last-child {
+    border-bottom-right-radius: var(--border-radius);
+  }
+
+  .price-grid .col-day {
+    font-weight: 600;
+    max-width: 200px;
+    text-wrap: balance;
+    user-select: none;
+    transition: background 0.2s ease;
+  }
+
+  @media (max-width: 720px) {
+    .price-grid .col-day {
+    max-width: 100%;
+    }
+    
+  }
+
+  .price-grid .col-day::after {
+    content: '▼';
+    float: right;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+    display: none;
+  }
+
+  .price-grid .col-day.is-open::after {
+    transform: rotate(180deg);
+  }
+
+  .price-grid .price-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .price-amount {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--dark-color);
+  }
+
+  .price-meta {
+    display: none; /* Hidden on desktop, shown on mobile */
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--muted-color);
+  }
+
+  /* Popularity chips */
+
+  .popularity-chip {
+    border-radius: var(--border-radius);
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: 1px solid transparent;
+    display: inline;
+  }
+
+  /* Prevent uppercase transformation for specific text */
+  .no-uppercase {
+    text-transform: none !important;
+  }
+
+  /* Prevent uppercase in data-label pseudo-element for specific cells */
+  .price-grid td.no-caps-label::before {
+    text-transform: none !important;
+  }
+
+  .popularity-1 {
+    background: #e4f7e7;
+    border-color: #b4dfbb;
+    color: #2e7d32;
+    display: inline;
+  }
+
+  .popularity-2 {
+    background: #fff7e3;
+    border-color: #ffe0a3;
+    color: #b26a00;
+    display: inline;
+  }
+
+  .popularity-3 {
+    background: #ffe6e5;
+    border-color: #ffb1ae;
+    color: #b71c1c;
+    display: inline;
+  }
+
+  /* Popularity dots 1–3 */
+
+  .popularity-dots {
+    display: inline-flex;
+    gap: 3px;
+  }
+
+  .popularity-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #d0d0d0;
+  }
+
+  .dots-1 span:nth-child(-n+1),
+  .dots-2 span:nth-child(-n+2),
+  .dots-3 span:nth-child(-n+3) {
+    background: var(--main-color);
+  }
+
+  /* Footer text under card */
+
+  .product-card-footer {
+    margin-top: 12px;
+    font-size: 16px;
+    color: var(--muted-color);
+    line-height: 1.4;
+  }
+
+  .price-widget p {
+    line-height: 1.2;
+  }
+
+  .price-widget strong {
+    font-weight: 600;
+  }
+
+  /* Responsive tweaks and mobile no-scroll layout */
+
+  @media (max-width: 720px) {
     .price-widget {
-      max-width: 960px;
-      margin: 0 auto;
-      background: linear-gradient(135deg, #111111 0%, #1d1d1d 45%, #2a2a2a 100%);
-      border-radius: 3px;
-      padding: 24px;
-      color: #ffffff;
-      box-shadow: var(--shadow-soft);
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* subtle graphic overlay */
-    .price-widget::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background-image:
-        radial-gradient(circle at 0 0, rgba(255,255,255,0.08), transparent 55%),
-        radial-gradient(circle at 100% 100%, rgba(255,255,255,0.04), transparent 55%);
-      opacity: 0.9;
-      pointer-events: none;
-    }
-
-    .price-widget-inner {
-      position: relative;
-      z-index: 1;
-    }
-
-    .price-widget-header {
-      margin-bottom: 24px;
+      padding: 18px;
+      border-radius: var(--border-radius);
     }
 
     .price-widget-heading {
-      font-size: 2.6rem;
-      margin: 0 0 8px;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
+      font-size: 1.3rem;
     }
-
-    .price-widget-text {
-      margin: 0;
-      color: #f3f3f3;
-      max-width: 620px;
-      line-height: 1.2;
-      font-size: 0.95rem;
-    }
-
-    /* Tabs */
-
-    .product-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .product-tab-button {
-      border: none;
-      outline: none;
-      padding: 8px 16px;
-      border-radius: 3px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      background: var(--jy-muted);
-      color: #ffffff;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
-    }
-
-    .product-tab-button span.plus {
-      font-size: 20px;
-      font-weight: 600;
-      line-height: 1;
-      color: #fa0000;
-    }
-
-    .product-tab-button span.plus::before {
-      content: '+';
-    }
-
-    .product-tab-button.is-active {
-      background: #ffffff;
-      color: var(--jy-dark);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-      transform: translateY(-1px);
-    }
-
-    .product-tab-button.is-active span.plus {
-      color: var(--jy-red);
-    }
-
-    .product-tab-button.is-active span.plus::before {
-      content: '−';
-    }
-
-    /* Product card */
 
     .product-card {
-      background: #ffffff;
-      color: var(--jy-text);
-      border-radius: var(--radius-lg);
-      padding: 20px 20px 16px;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-      display: none;
-    }
-
-    .product-card.is-active {
-      display: block;
+      padding: 16px;
     }
 
     .product-card-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
+      flex-direction: column;
       align-items: flex-start;
-      margin-bottom: 16px;
-    }
-
-    .product-card-title {
-      margin: 0;
-      font-size: 1.2rem;
-      font-weight: 700;
-    }
-
-    .product-card-subtitle {
-      margin: 4px 0 0;
-      font-size: 16px;
-      color: var(--jy-muted);
-      font-weight: 400;
     }
 
     .product-card-tag {
-      align-self: flex-start;
-      background: rgba(225, 6, 0, 0.08);
-      border-radius: 3px;
-      padding: 4px 10px;
-      font-size: 12px;
-      color: var(--jy-red);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      margin-top: 8px;
     }
 
-    /* Scroll wrapper for table on larger screens */
+    /* === MOBILE: no horizontal scroll, stacked layout === */
 
+    /* stop forcing horizontal scroll */
     .price-grid-wrapper {
-      width: 100%;
-      overflow-x: auto;
-      padding-bottom: 6px;
+      overflow-x: visible;
+      padding-bottom: 0;
     }
 
     .price-grid {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 520px;
-      font-size: 0.9rem;
+      min-width: 0;
+      border-collapse: separate;
+      border-spacing: 0;
     }
 
-    .price-grid th,
-    .price-grid td {
-      border: 1px solid var(--jy-border);
-      padding: 10px 12px;
-      text-align: left;
-      vertical-align: middle;
-      background: #ffffff;
-
-    }
-
-    .price-grid th {
-      background: #f6f6f8;
-      font-weight: 600;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--jy-muted);
-    }
-
-    .price-grid th:first-child {
-      border-top-left-radius: 3px;
-    }
-
-    .price-grid th:last-child {
-      border-top-right-radius: 3px;
-    }
-
-    .price-grid tr:last-child td:first-child {
-      border-bottom-left-radius: 3px;
-    }
-
-    .price-grid tr:last-child td:last-child {
-      border-bottom-right-radius: 3px;
-    }
-
-    .price-grid .col-day {
-      font-weight: 600;
-      white-space: balance;
-      user-select: none;
-      transition: background 0.2s ease;
-    }
-
-    .price-grid .col-day::after {
-      content: '▼';
-      float: right;
-      font-size: 12px;
-      transition: transform 0.3s ease;
+    /* hide table header on mobile */
+    .price-grid thead {
       display: none;
     }
 
-    .price-grid .col-day.is-open::after {
-      transform: rotate(180deg);
+    /* each row becomes a mini-card (per weekday) */
+    .price-grid tbody tr {
+      display: block;
+      margin-bottom: 12px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
 
-    .price-grid .price-cell {
+    .price-grid td {
+      display: none;
+      border: none;
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 14px;
+    }
+
+    .price-grid td[data-label] {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 10px;
-      flex-wrap: nowrap;
+      gap: 8px;
     }
 
-    .price-amount {
+    .price-grid td.col-day {
+      display: block;
+    }
+
+    .price-grid tbody tr.is-open td:not(.col-day) {
+      display: block;
+    }
+
+    .price-grid td:last-child {
+      border-bottom: none;
+    }
+
+    /* weekday at the top of the card */
+    .price-grid .col-day {
+      font-size: 16px;
+      font-weight: 600;
+      background: #000;
+      color: var(--bg-color);
+      cursor: pointer;
+    }
+
+    .price-grid .col-day:hover {
+      background: #1a1a1a;
+    }
+
+    .price-grid .col-day::after {
+      display: block;
+    }
+
+    /* Hide price cells by default on mobile */
+    .price-grid tbody tr td:not(.col-day) {
+      display: none;
+    }
+
+    .price-grid tbody tr.is-open td:not(.col-day) {
+      display: flex;
+    }
+
+    /* add labels above each price cell using data-label (hours) */
+    .price-grid td[data-label]::before {
+      content: attr(data-label);
+      font-size: 16px;
       font-weight: 700;
-      font-size: 0.9rem;
-      color: var(--jy-dark);
+      font-variation-settings: 'wght' 700, 'wdth' 100, 'slnt' 0;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      color: #000;
+    }
+
+    /* Make price-meta display inline with the time label */
+    .price-grid .price-meta {
+      display: inline-flex !important;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    /* Make price-cell display as block so it goes to next line */
+    .price-grid .price-cell {
+      display: block;
+      width: 100%;
+      flex-basis: 100%;
+    }
+
+    /* tighten price layout a bit on mobile */
+    .price-amount {
+      font-size: 16px;
+      font-weight: 600;
     }
 
     .price-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
       font-size: 12px;
-      color: var(--jy-muted);
     }
-
-    /* Popularity chips */
-
-    .popularity-chip {
-      border-radius: 3px;
-      padding: 2px 8px;
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      border: 1px solid transparent;
-    }
-
-    .popularity-1 {
-      background: #e4f7e7;
-      border-color: #b4dfbb;
-      color: #2e7d32;
-    }
-
-    .popularity-2 {
-      background: #fff7e3;
-      border-color: #ffe0a3;
-      color: #b26a00;
-    }
-
-    .popularity-3 {
-      background: #ffe6e5;
-      border-color: #ffb1ae;
-      color: #b71c1c;
-    }
-
-    /* Popularity dots 1–3 */
-
-    .popularity-dots {
-      display: inline-flex;
-      gap: 3px;
-    }
-
-    .popularity-dots span {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #d0d0d0;
-    }
-
-    .dots-1 span:nth-child(-n+1),
-    .dots-2 span:nth-child(-n+2),
-    .dots-3 span:nth-child(-n+3) {
-      background: var(--jy-red);
-    }
-
-    /* Footer text under card */
-
-    .product-card-footer {
-      margin-top: 12px;
-      font-size: 16px;
-      color: var(--jy-muted);
-      line-height: 1.4;
-    }
-
-    /* Responsive tweaks and mobile no-scroll layout */
-
-    @media (max-width: 720px) {
-      body {
-        padding: 16px;
-      }
-
-      .price-widget {
-        padding: 18px;
-        border-radius: 3px;
-      }
-
-      .price-widget-heading {
-        font-size: 1.3rem;
-      }
-
-      .product-card {
-        padding: 16px;
-      }
-
-      .product-card-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .product-card-tag {
-        margin-top: 8px;
-      }
-
-      /* === MOBILE: no horizontal scroll, stacked layout === */
-
-      /* stop forcing horizontal scroll */
-      .price-grid-wrapper {
-        overflow-x: visible;
-        padding-bottom: 0;
-      }
-
-      .price-grid {
-        min-width: 0;
-        border-collapse: separate;
-        border-spacing: 0;
-      }
-
-      /* hide table header on mobile */
-      .price-grid thead {
-        display: none;
-      }
-
-      /* each row becomes a mini-card (per weekday) */
-      .price-grid tbody tr {
-        display: block;
-        margin-bottom: 12px;
-        border-radius: 3px;
-        border: 1px solid var(--jy-border);
-        overflow: hidden;
-        background: #ffffff;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-      }
-
-      .price-grid td {
-        display: none;
-        border: none;
-        border-bottom: 1px solid var(--jy-border);
-        padding: 10px 14px;
-      }
-
-      .price-grid td[data-label] {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .price-grid td.col-day {
-        display: block;
-      }
-
-      .price-grid tbody tr.is-open td:not(.col-day) {
-        display: block;
-      }
-
-      .price-grid td:last-child {
-        border-bottom: none;
-      }
-
-      /* weekday at the top of the card */
-      .price-grid .col-day {
-        font-size: 16px;
-        font-weight: 600;
-        background: #000;
-        color: var(--jy-bg);
-        cursor: pointer;
-      }
-
-      .price-grid .col-day:hover {
-        background: #1a1a1a;
-      }
-
-      .price-grid .col-day::after {
-        display: block;
-      }
-
-      /* Hide price cells by default on mobile */
-      .price-grid tbody tr td:not(.col-day) {
-        display: none;
-      }
-
-      .price-grid tbody tr.is-open td:not(.col-day) {
-        display: flex;
-      }
-
-      /* add labels above each price cell using data-label (hours) */
-      .price-grid td[data-label]::before {
-        content: attr(data-label) ":";
-        display: inline-block;
-        font-size: 16px;
-        font-weight: 700;
-        font-variation-settings: 'wght' 700, 'wdth' 100, 'slnt' 0;
-        text-transform: uppercase;
-        letter-spacing: 0;
-        color: #000;
-        flex-shrink: 0;
-      }
-
-      /* tighten price layout a bit on mobile */
-      .price-amount {
-        font-size: 16px;
-        font-weight: 600;
-      }
-
-      .price-meta {
-        font-size: 12px;
-      }
-
-      /* Keep row layout on mobile */
-      .price-grid .price-cell {
-        flex-direction: row;
-      }
-    }
-
-    p {
-      line-height: 1.2;
-    }
-
-    strong {
-      font-weight: 600;
-    }
-  </style>
-</head>
-<body>
+  }
+</style>
 
 <div class="price-widget">
   <div class="price-widget-inner">
@@ -512,7 +541,7 @@
         <div>
           <h3 class="product-card-title">Hopptid</h3>
           <p class="product-card-subtitle">
-            Trampolinstrumpor med halkskydd krävs. Ta med egna eller köp hos oss!
+            Priser per person. </br></br>Trampolinstrumpor med halkskydd krävs. Ta med egna eller köp hos oss!
           </p>
         </div>
         <div class="product-card-tag">entré</div>
@@ -523,12 +552,12 @@
           <thead>
             <tr>
               <th>Dag</th>
-              <th>09.00</th>
-              <th>10:00–12:00</th>
-              <th>13:00–16:00</th>
-              <th>17:00</th>
-              <th>18:00</th>
-              <th>19:00</th>
+              <th>09.00<br><span class="popularity-chip popularity-1">Lugnt</span></th>
+              <th>10:00–12:00<br><span class="popularity-chip popularity-2">Medel</span></th>
+              <th>13:00–16:00<br><span class="popularity-chip popularity-3">Populärt</span></th>
+              <th>17:00<br><span class="popularity-chip popularity-2">Medel</span></th>
+              <th>18:00<br><span class="popularity-chip popularity-1">Lugnt</span></th>
+              <th>19:00 (Sista timmen)<br><span class="popularity-chip popularity-1">Lugnt</span></th>
             </tr>
           </thead>
           <tbody>
@@ -536,45 +565,49 @@
 <!--   Vardagar -->         
             <tr>
               <td class="col-day">Måndag till torsdag - 2 timmar</td>
-              <td data-label="09.00">Stängt</td>
-              <td data-label="10.00–12.00">
+              <td data-label="09.00 ">
                 <div class="price-cell">
-                  <span class="price-amount">209 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-2">Medel</span>
-                  </div>
+                <span class="price-amount">Stängt</span>
+                </div>
+              </td>
+              <td data-label="10.00–12.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-2">Medel</span>
+                </div>
+                <div class="price-cell">
+                  <span class="price-amount">209 kr</span>
                 </div>
               </td>
               <td data-label="13.00–16.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-3">Populärt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">209 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-3">Populärt</span>
-                  </div>
+                  <span class="price-amount">209 kr</span>
                 </div>
               </td>
               <td data-label="17.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-2">Medel</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">209 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-2">Medel</span>
-                  </div>
+                  <span class="price-amount">209 kr</span>
                 </div>
               </td>
               <td data-label="18.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">209 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
+                  <span class="price-amount">209 kr</span>
                 </div>
               </td>
-              <td data-label="19.00">
+              <td data-label="19.00 (Sista timmen)" class="no-caps-label">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
                   <span class="price-amount">179 kr</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
                 </div>
               </td>
             </tr>
@@ -582,45 +615,49 @@
 <!--   Fredagar -->         
             <tr>
               <td class="col-day">Fredagar - 1 timme</td>
-              <td data-label="09.00">Stängt</td>
-              <td data-label="10.00–12.00">
+              <td data-label="09.00">
                 <div class="price-cell">
-                  <span class="price-amount">209 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-2">Medel</span>
-                  </div>
+                <span class="price-amount">Stängt</span>
+                </div>
+              </td>
+              <td data-label="10.00–12.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-2">Medel</span>
+                </div>
+                <div class="price-cell">
+                  <span class="price-amount">209 kr</span>
                 </div>
               </td>
               <td data-label="13.00–16.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-3">Populärt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">209 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-3">Populärt</span>
-                  </div>
+                  <span class="price-amount">209 kr</span>
                 </div>
               </td>
               <td data-label="17.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-2">Medel</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">209 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-2">Medel</span>
-                  </div>
+                  <span class="price-amount">209 kr</span>
                 </div>
               </td>
               <td data-label="18.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">209 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
+                  <span class="price-amount">209 kr</span>
                 </div>
               </td>
-              <td data-label="19.00">
+              <td data-label="19.00 (Sista timmen)" class="no-caps-label">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
                   <span class="price-amount">179 kr</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
                 </div>
               </td>
             </tr>
@@ -629,53 +666,57 @@
             <tr>
               <td class="col-day">Helger & lov - 1 timme</td>
                <td data-label="09.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
                   <span class="price-amount">149 kr</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
                 </div>
               </td>
               <td data-label="10.00–12.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-2">Medel</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">149 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-2">Medel</span>
-                  </div>
+                  <span class="price-amount">149 kr</span>
                 </div>
               </td>
               <td data-label="13.00–16.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-3">Populärt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">219 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-3">Populärt</span>
-                  </div>
+                  <span class="price-amount">219 kr</span>
                 </div>
               </td>
               <td data-label="17.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-2">Medel</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">179 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-2">Medel</span>
-                  </div>
+                  <span class="price-amount">179 kr</span>
                 </div>
               </td>
               <td data-label="18.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">149 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
+                  <span class="price-amount">149 kr</span>
                 </div>
               </td>
-              <td data-label="19.00">Stängt</td>
-            </tr>
+              <td data-label="19.00 (Sista timmen)" class="no-caps-label">
+                <div class="price-cell">
+                <span class="price-amount">Stängt</span>
+                </div>
+              </td>
+              </tr>
           </tbody>
         </table>
       </div>
 
       <p class="product-card-footer">
-        Vi har flexibla priser, vilket innebär att du kan få ett bättre pris när vi har det lite lugnare.</br></br>Besök oss när det är mindre folk och få mer för pengarna!</br></br>Vi rekommenderar att du bokar ditt inträde online för att <strong style="font-weight: 600;">spara 20 kr per person</strong> men du är alltid välkommen på drop-in.</p>
+        Vi har flexibla priser, vilket innebär att du kan få ett bättre pris när vi har det lite lugnare.<br>Besök oss när det är mindre folk och få mer för pengarna!<br><br>Vi rekommenderar att du bokar ditt inträde online för att <strong style="font-weight: 600;">spara 20 kr per person</strong> men du är alltid välkommen på drop-in.</p>
     </section>
 
     <!-- Product 2: Familjebiljett -->
@@ -684,7 +725,7 @@
         <div>
           <h3 class="product-card-title">Familjebiljett</h3>
           <p class="product-card-subtitle">
-            4 personer till priset av 3, varav minst 1 över 18 år. Kul för hela familjen! </br>Trampolinstrumpor med halkskydd krävs. Ta med egna eller köp hos oss!
+            4 personer till priset av 3, varav minst 1 över 18 år. Kul för hela familjen! <br>Trampolinstrumpor med halkskydd krävs. Ta med egna eller köp hos oss!
           </p>
         </div>
         <div class="product-card-tag">Entré för familj</div>
@@ -695,58 +736,60 @@
           <thead>
             <tr>
               <th>Dag</th>
-              <th>09:00</th>
-              <th>10:00–12:00</th>
-              <th>13:00–16:00</th>
-              <th>17:00</th>
-              <th>18:00</th>
-              <th>19:00 (sista timmen)</th>
+              <th>09:00<br><span class="popularity-chip popularity-1">Lugnt</span></th>
+              <th>10:00–12:00<br><span class="popularity-chip popularity-2">Medel</span></th>
+              <th>13:00–16:00<br><span class="popularity-chip popularity-3">Populärt</span></th>
+              <th>17:00<br><span class="popularity-chip popularity-2">Medel</span></th>
+              <th>18:00<br><span class="popularity-chip popularity-1">Lugnt</span></th>
+              <th>19:00 <span class="no-uppercase">(Sista timmen)</span><br><span class="popularity-chip popularity-1">Lugnt</span></th>
             </tr>
           </thead>
           <tbody>
 <!--   Vardagar -->         
             <tr>
               <td class="col-day">Måndag till torsdag - 2 timmar</td>
-              <td data-label="09.00">Stängt</td>
-
+              <td data-label="09.00">                <div class="price-cell">
+                <span class="price-amount">Stängt</span>
+                </div>
+              </td>
               <td data-label="10.00–12.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-2">Medel</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">629 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-2">Medel</span>
-                  </div>
+                  <span class="price-amount">629 kr</span>
                 </div>
               </td>
               <td data-label="13.00–16.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-3">Populärt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">629 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-3">Populärt</span>
-                  </div>
+                  <span class="price-amount">629 kr</span>
                 </div>
               </td>
               <td data-label="17.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">629 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
+                  <span class="price-amount">629 kr</span>
                 </div>
               </td>
                             <td data-label="18.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">629 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
+                  <span class="price-amount">629 kr</span>
                 </div>
               </td>
-              <td data-label="19.00 (sista timmen)">
+              <td data-label="19.00 (Sista timmen)" class="no-caps-label">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">539 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
+                  <span class="price-amount">539 kr</span>
                 </div>
               </td>
 
@@ -755,46 +798,48 @@
 <!--   Fredagar -->         
             <tr>
               <td class="col-day">Fredagar - 1 timme</td>
-              <td data-label="09.00">Stängt</td>
-
+              <td data-label="09.00">                <div class="price-cell">
+                <span class="price-amount">Stängt</span>
+                </div>
+              </td>
               <td data-label="10.00–12.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-2">Medel</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">629 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-2">Medel</span>
-                  </div>
+                  <span class="price-amount">629 kr</span>
                 </div>
               </td>
               <td data-label="13.00–16.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-3">Populärt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">629 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-3">Populärt</span>
-                  </div>
+                  <span class="price-amount">629 kr</span>
                 </div>
               </td>
               <td data-label="17.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">629 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
+                  <span class="price-amount">629 kr</span>
                 </div>
               </td>
                             <td data-label="18.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">629 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
+                  <span class="price-amount">629 kr</span>
                 </div>
               </td>
-              <td data-label="19.00 (sista timmen)">
+              <td data-label="19.00 (Sista timmen)" class="no-caps-label">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">539 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
+                  <span class="price-amount">539 kr</span>
                 </div>
               </td>
 
@@ -803,54 +848,57 @@
             <tr>
               <td class="col-day">Helger & lov - 1 timme</td>
               <td data-label="09.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">499 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
+                  <span class="price-amount">499 kr</span>
                 </div>
               </td>
               <td data-label="10.00–12.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-2">Medel</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">449 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-2">Medel</span>
-                  </div>
+                  <span class="price-amount">449 kr</span>
                 </div>
               </td>
               <td data-label="13.00-16.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-3">Populärt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">649 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-3">Populärt</span>
-                  </div>
+                  <span class="price-amount">649 kr</span>
                 </div>
               </td>
                 <td data-label="17.00">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-2">Medel</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">529 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-2">Medel</span>
-                  </div>
+                  <span class="price-amount">529 kr</span>
                 </div>
               </td>
-              <td data-label="18.00 (sista timmen)">
+              <td data-label="18.00 (Sista timmen)" class="no-caps-label">
+                <div class="price-meta">
+                  <span class="popularity-chip popularity-1">Lugnt</span>
+                </div>
                 <div class="price-cell">
-                  <span class="price-amount">449 kr/pers</span>
-                  <div class="price-meta">
-                    <span class="popularity-chip popularity-1">Lugnt</span>
-                  </div>
+                  <span class="price-amount">449 kr</span>
                 </div>
               </td>
-              <td data-label="19.00">Stängt</td>
-
+              <td data-label="19.00">                
+                <div class="price-cell">
+                <span class="price-amount">Stängt</span>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <p class="product-card-footer">
-        Vi har flexibla priser, vilket innebär att du kan få ett bättre pris när vi har det lite lugnare.</br></br>Besök oss när det är mindre folk och få mer för pengarna!</br></br>Vi rekommenderar att du bokar ditt inträde online för att <strong style="font-weight: 600;">spara 20 kr per person</strong> men du är alltid välkommen på drop-in.</p>
+        Vi har flexibla priser, vilket innebär att du kan få ett bättre pris när vi har det lite lugnare.<br>Besök oss när det är mindre folk och få mer för pengarna!<br><br>Vi rekommenderar att du bokar ditt inträde online för att <strong style="font-weight: 600;">spara 20 kr per person</strong> men du är alltid välkommen på drop-in.</p>
     </section>
 
   </div>
@@ -915,5 +963,4 @@
   });
 </script>
 
-</body>
-</html>
+<!-- End of Price Widget -->
