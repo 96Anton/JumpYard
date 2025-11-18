@@ -6,8 +6,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dynamic Price Widget</title>
-  <!-- Temporary font loading for preview -->
-  <link rel="stylesheet" href="https://use.typekit.net/dcy5ljq.css">
+  <!-- Optimized font loading: preconnect + async loading -->
+  <link rel="preconnect" href="https://use.typekit.net" crossorigin>
+  <link rel="stylesheet" href="https://use.typekit.net/dcy5ljq.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://use.typekit.net/dcy5ljq.css"></noscript>
 
 
 
@@ -25,7 +27,7 @@
     --border-color: #e0e0e0;
     --border-radius: 3px;
     --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-    --font-family: "acumin-variable", sans-serif;
+    --font-family: "acumin-variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
     --font-weight-normal: 400;
     --font-weight-bold: 900;
     --font-width: 100;
